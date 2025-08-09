@@ -1,0 +1,35 @@
+{
+  "name": "gitlumen",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/*/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "db:migrate": "yarn workspace api migration:run",
+    "db:generate": "yarn workspace api migration:generate",
+    "db:revert": "yarn workspace api migration:revert"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.0",
+    "rimraf": "^5.0.0",
+    "concurrently": "^8.2.0"
+  }
+} 

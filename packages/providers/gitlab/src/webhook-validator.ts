@@ -1,0 +1,56 @@
+import * as crypto from 'crypto';
+
+export class GitLabWebhookValidator {
+  private webhookSecret: string;
+
+  constructor(webhookSecret: string) {
+    this.webhookSecret = webhookSecret;
+  }
+
+  validate(payload: any, signature: string): boolean {
+    if (!this.webhookSecret || !signature) {
+      return false;
+    }
+
+    try {
+      // GitLab sends the webhook secret as a token in the X-Gitlab-Token header
+      // We need to compare it directly with our stored secret
+      if (signature === this.webhookSecret) {
+        return true;
+      }
+
+      // Alternative validation using HMAC if GitLab sends a different signature format
+      const expectedSignature = this.generateHmacSignature(payload);
+      return crypto.timingSafeEqual(
+        Buffer.from(signature, 'hex'),
+        Buffer.from(expectedSignature, 'hex')
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private generateHmacSignature(payload: any): string {
+    const data = typeof payload === 'string' ? payload : JSON.stringify(payload);
+    return crypto
+      .createHmac('sha256', this.webhookSecret)
+      .update(data, 'utf8')
+      .digest('hex');
+  }
+
+  validateToken(token: string): boolean {
+    return token === this.webhookSecret;
+  }
+
+  validateSignature(payload: string, signature: string): boolean {
+    try {
+      const expectedSignature = this.generateHmacSignature(payload);
+      return crypto.timingSafeEqual(
+        Buffer.from(signature, 'hex'),
+        Buffer.from(expectedSignature, 'hex')
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+} 
