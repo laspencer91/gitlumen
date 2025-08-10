@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Provider, ProviderRuntimeConfig } from '@gitlumen/core';
+import { IProvider, ProviderRuntimeConfig } from '@gitlumen/core';
 import { GitLabProvider } from '@gitlumen/provider-gitlab';
 
 /**
@@ -13,13 +13,13 @@ import { GitLabProvider } from '@gitlumen/provider-gitlab';
 
 @Injectable()
 export class ProviderFactory {
-  private providers: Map<string, (config: ProviderRuntimeConfig) => Provider> = new Map();
+  private providers: Map<string, (config: ProviderRuntimeConfig) => IProvider<unknown, unknown>> = new Map();
 
   constructor() {
     this.providers.set('gitlab', (config) => new GitLabProvider(config));
   }
 
-  getProvider(type: string, config?: ProviderRuntimeConfig): Provider {
+  getProvider(type: string, config?: ProviderRuntimeConfig): IProvider {
     const creator = this.providers.get(type);
     if (!creator) {
       throw new Error(`Provider ${type} not found`);

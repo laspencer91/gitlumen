@@ -12,7 +12,8 @@
     "declaration": true,
     "declarationMap": true,
     "incremental": true,
-    "composite": true
+    "composite": true,
+    "noEmit": false
   },
   "exclude": ["node_modules", "dist", ".next", ".turbo"]
 } 

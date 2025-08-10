@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { WebhooksController } from './webhooks.controller';
 import { WebhooksService } from './webhooks.service';
 import { ProvidersModule } from '../providers/providers.module';
+import { EventsModule } from '../events/events.module';
 import { WebhooksServicePort } from './webhooks.service.port';
 
 @Module({
-  imports: [ProvidersModule],
+  imports: [ProvidersModule, EventsModule],
   controllers: [WebhooksController],
   providers: [
     { provide: WebhooksServicePort, useClass: WebhooksService },

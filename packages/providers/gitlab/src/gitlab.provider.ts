@@ -1,10 +1,12 @@
-import { Provider, ProviderRuntimeConfig, ProviderEvent, ProjectInfo, JsonObject } from '@gitlumen/core';
+import { IProvider, ProviderRuntimeConfig, ProjectInfo } from '@gitlumen/core';
 import { GitLabApiClient } from './api-client';
 import { GitLabWebhookValidator } from './webhook-validator';
 import { GitLabEventParser } from './event-parser';
 import { GitLabWebhookEvents } from './webhook-types';
+import { GitLabDevelopmentEvent } from './provider-event';
+import { GitLabWebhookHeaders } from './types';
 
-export class GitLabProvider implements Provider {
+export class GitLabProvider implements IProvider<GitLabWebhookEvents, GitLabWebhookHeaders> {
   public readonly id: string;
   public readonly name: string;
   public readonly type: string;
@@ -25,12 +27,12 @@ export class GitLabProvider implements Provider {
     this.eventParser = new GitLabEventParser();
   }
 
-  validateWebhook(payload: JsonObject, signature: string): boolean {
-    return this.webhookValidator.validate(payload, signature);
+  validateWebhook(payload: GitLabWebhookEvents, headers: GitLabWebhookHeaders): boolean {
+    return this.webhookValidator.validate(payload, headers as unknown as GitLabWebhookHeaders);
   }
 
-  parseEvent(payload: JsonObject): ProviderEvent {
-    return this.eventParser.parse(payload as unknown as GitLabWebhookEvents); // TODO: Validate payload structure
+  parseEvent(payload: GitLabWebhookEvents): GitLabDevelopmentEvent {
+    return this.eventParser.parse(payload); // TODO: Validate payload structure
   }
 
   async getProjectInfo(projectId: string): Promise<ProjectInfo> {

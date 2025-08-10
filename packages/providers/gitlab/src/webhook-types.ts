@@ -7,8 +7,7 @@
  *
  * This file provides complete, up-to-date TypeScript definitions for all GitLab webhook events.
  */
-
-import { LiteralUnion } from './utils';
+import { JsonObject } from '@gitlumen/core';
 
 // ============================================================================
 // COMMON TYPES (Enhanced from gitlab-event-types)
@@ -937,6 +936,8 @@ export type GitLabWebhookEvents =
   | WorkItemEvent
   | AccessTokenEvent
   | VulnerabilityEvent;
+
+export const SupportedGitLabWebhookEvents = ['merge_request', 'note'] as const satisfies Array<GitLabWebhookEvents['object_kind']>;
 
 // ============================================================================
 // UTILITY TYPES

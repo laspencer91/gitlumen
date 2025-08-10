@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
-import { JsonObject } from '@gitlumen/core';
+import { GitLabWebhookEvents, SupportedGitLabWebhookEvents } from './webhook-types';
+import { GitLabWebhookHeaders } from './types';
 
 export class GitLabWebhookValidator {
   private webhookSecret: string;
@@ -8,8 +9,22 @@ export class GitLabWebhookValidator {
     this.webhookSecret = webhookSecret;
   }
 
-  validate(payload: JsonObject, signature: string): boolean {
-    if (!this.webhookSecret || !signature) {
+  validate(payload: GitLabWebhookEvents, headers: GitLabWebhookHeaders): boolean {
+    if (!this.webhookSecret || !headers) {
+      return false;
+    }
+
+    const signature = headers['x-gitlab-token'] || null;
+    if (!signature) {
+      return false;
+    }
+
+    if (!payload.object_kind) {
+      console.warn('Received gitlab webhook without object_kind property. Validation failed..')
+      return false;
+    }
+
+    if (!SupportedGitLabWebhookEvents.includes(payload.object_kind as never)) {
       return false;
     }
 
@@ -31,7 +46,7 @@ export class GitLabWebhookValidator {
     }
   }
 
-  private generateHmacSignature(payload: JsonObject): string {
+  private generateHmacSignature(payload: GitLabWebhookEvents): string {
     const data = JSON.stringify(payload);
     return crypto
       .createHmac('sha256', this.webhookSecret)

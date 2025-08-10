@@ -1,4 +1,5 @@
-import { MetadataObject, JsonObject } from '../types';
+import { JsonObject } from '../types/common.types';
+import { DevelopmentEvent } from '../types/event.types';
 
 export interface ProviderRuntimeConfig {
   id: string;
@@ -12,28 +13,16 @@ export interface ProviderRuntimeConfig {
   updatedAt: Date;
 }
 
-export interface Provider {
+export interface IProvider<PAYLOAD = JsonObject, HEADERS = Record<string, string>> {
   id: string;
   name: string;
   type: string;
-  validateWebhook(payload: JsonObject, signature: string): boolean;
-  parseEvent(payload: JsonObject): ProviderEvent;
+  validateWebhook(payload: PAYLOAD, headers: HEADERS): boolean;
+  parseEvent(payload: PAYLOAD): DevelopmentEvent<any>;
   getProjectInfo(projectId: string): Promise<ProjectInfo>;
 }
 
-export interface ProviderEvent {
-  id: string;
-  type: string;
-  projectId: string;
-  projectName: string;
-  branch: string;
-  author: string;
-  title: string;
-  description?: string;
-  url: string;
-  timestamp: Date;
-  metadata: MetadataObject;
-}
+// DevelopmentEvent is now defined in development-events.types.ts
 
 export interface ProjectInfo {
   id: string;

@@ -1,6 +1,6 @@
-import { Plugin, PluginRuntimeConfig, NotificationEvent, NotificationResult, JsonObject } from '@gitlumen/core';
 import { TeamsClient } from './teams-client';
 import { MessageFormatter } from './message-formatter';
+import { Plugin, INotificationPlugin, PluginRuntimeConfig, NotificationEvent, NotificationResult, JsonObject } from '@gitlumen/core';
 
 export interface TeamsPluginConfig {
   webhookUrl: string;
@@ -17,7 +17,14 @@ export interface TeamsPluginConfig {
   };
 }
 
-export class TeamsPlugin implements Plugin {
+@Plugin({
+  type: 'teams',
+  name: 'Microsoft Teams',
+  description: 'Send notifications to Microsoft Teams channels via webhooks',
+  version: '1.0.0',
+  author: 'GitLumen Team'
+})
+export class TeamsPlugin implements INotificationPlugin {
   public readonly id: string;
   public readonly name: string;
   public readonly type: string;
@@ -91,4 +98,4 @@ export class TeamsPlugin implements Plugin {
     this.config = { ...this.config, ...newConfig };
     this.formatter = new MessageFormatter(this.config);
   }
-} 
+}

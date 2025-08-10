@@ -1,4 +1,4 @@
-import { Provider } from '@gitlumen/core';
+import { IProvider, ProviderRuntimeConfig } from '@gitlumen/core';
 
 /**
  * Providers Service Port
@@ -18,6 +18,6 @@ import { Provider } from '@gitlumen/core';
  * - Manage rate limiting per provider
  */
 export abstract class ProvidersServicePort {
-  abstract getProvider(type: string): Promise<Provider>;
+  abstract getProvider(type: string, config?: ProviderRuntimeConfig): Promise<IProvider>;
 }
 

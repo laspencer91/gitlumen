@@ -4,4 +4,6 @@ export * from './webhook-validator';
 export * from './event-parser';
 export * from './types';
 export * from './webhook-types';
+export * from './event-metadata';
+export * from './provider-event';
 export * from './utils'; 

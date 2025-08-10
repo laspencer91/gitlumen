@@ -1,11 +1,8 @@
 import { Controller, Post, Param, Headers, Body, Logger } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { WebhooksServicePort } from './webhooks.service.port';
-import {
-  GitLabWebhookHeaders,
-  GitLabEventType,
-  GitLabWebhookEvents,
-} from '@gitlumen/provider-gitlab';
+import { JsonObject } from '@gitlumen/core';
+import { GitLabEventType, GitLabWebhookEvents, GitLabWebhookHeaders } from '@gitlumen/provider-gitlab';
 
 @ApiTags('webhooks')
 @Controller('webhooks')
@@ -28,7 +25,19 @@ export class WebhooksController {
 
     this.logger.debug(`Event Type: ${eventType}, Event ID: ${eventId}`);
 
-    return this.webhooksService.handleGitlab(projectId, eventType, eventId, headers, body);
+    // W know the types at this point, but our service handles the data agnostically, so we need to widen the types.
+    return this.webhooksService.handleWebhook(projectId, eventType, eventId, headers, body as unknown as JsonObject);
+  }
+
+  @Post('github/:projectId')
+  @ApiOperation({ summary: 'Receive Github webhook' })
+  async handleGitHubWebhook(
+    @Param('projectId') projectId: string,
+    @Headers() headers: Record<string, string>,
+    @Body() body: JsonObject,
+  ) {
+    this.logger.log(`Received Github webhook for project: ${projectId}. UNIMPLEMENTED...`);
+    return this.webhooksService.handleWebhook(projectId, 'unknown', 'unknown', headers, body);
   }
 }
 

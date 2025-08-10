@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Provider } from '@gitlumen/core';
+import { IProvider, ProviderRuntimeConfig } from '@gitlumen/core';
 import { ProviderFactory } from './provider.factory';
 import { ProvidersServicePort } from './providers.service.port';
 
@@ -9,8 +9,8 @@ export class ProvidersService extends ProvidersServicePort {
     super();
   }
 
-  async getProvider(type: string): Promise<Provider> {
-    return this.providerFactory.getProvider(type);
+  async getProvider(type: string, config?: ProviderRuntimeConfig): Promise<IProvider> {
+    return this.providerFactory.getProvider(type, config);
   }
 }
 

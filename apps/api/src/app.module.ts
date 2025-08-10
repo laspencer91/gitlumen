@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from './config/data-source';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -10,13 +10,15 @@ import { ProvidersModule } from './modules/providers/providers.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { EventsModule } from './modules/events/events.module';
+import { PluginsModule } from './modules/plugins/plugins.module';
+import { gitlumenConfig } from './config/app.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot(dataSourceOptions as TypeOrmModuleOptions),
+    TypeOrmModule.forRoot(dataSourceOptions),
     HealthModule,
     AuthModule,
     OrganizationsModule,
@@ -25,8 +27,9 @@ import { EventsModule } from './modules/events/events.module';
     WebhooksModule,
     NotificationsModule,
     EventsModule,
+    PluginsModule.forRoot(gitlumenConfig.plugins),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {} 
+export class AppModule {}
