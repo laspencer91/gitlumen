@@ -1,3 +1,5 @@
+import { MetadataObject, JsonObject } from '../types';
+
 export interface ProviderRuntimeConfig {
   id: string;
   name: string;
@@ -14,8 +16,8 @@ export interface Provider {
   id: string;
   name: string;
   type: string;
-  validateWebhook(payload: any, signature: string): boolean;
-  parseEvent(payload: any): ProviderEvent;
+  validateWebhook(payload: JsonObject, signature: string): boolean;
+  parseEvent(payload: JsonObject): ProviderEvent;
   getProjectInfo(projectId: string): Promise<ProjectInfo>;
 }
 
@@ -30,7 +32,7 @@ export interface ProviderEvent {
   description?: string;
   url: string;
   timestamp: Date;
-  metadata: Record<string, any>;
+  metadata: MetadataObject;
 }
 
 export interface ProjectInfo {
@@ -40,4 +42,4 @@ export interface ProjectInfo {
   webUrl: string;
   defaultBranch: string;
   visibility: 'public' | 'private' | 'internal';
-} 
+}

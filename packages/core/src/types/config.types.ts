@@ -1,3 +1,5 @@
+import { JsonObject } from './common.types';
+
 export interface DatabaseConfig {
   host: string;
   port: number;
@@ -38,7 +40,7 @@ export interface NotificationConfig {
   enabled: boolean;
   plugins: {
     teams?: TeamsConfig;
-    slack?: any;
-    email?: any;
+    slack?: JsonObject;
+    email?: JsonObject;
   };
 } 

@@ -1,3 +1,5 @@
+import { WebhookHeadersDto, WebhookPayloadDto, GenericResponseDto } from '@gitlumen/core';
+
 /**
  * Webhooks Service Port
  *
@@ -15,6 +17,6 @@
  * - Handle webhook errors and retries
  */
 export abstract class WebhooksServicePort {
-  abstract handleGitlab(projectId: string, headers: any, body: any): Promise<any>;
+  abstract handleGitlab(projectId: string, headers: WebhookHeadersDto, body: WebhookPayloadDto): Promise<GenericResponseDto>;
 }
 

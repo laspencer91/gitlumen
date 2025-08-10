@@ -1,9 +1,11 @@
+import { ConfigObject, MetadataObject, JsonObject } from '../types';
+
 export interface PluginRuntimeConfig {
   id: string;
   name: string;
   type: string;
   isActive: boolean;
-  config: Record<string, any>;
+  config: ConfigObject;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,7 +15,7 @@ export interface Plugin {
   name: string;
   type: string;
   sendNotification(event: NotificationEvent): Promise<NotificationResult>;
-  validateConfig(config: any): boolean;
+  validateConfig(config: JsonObject): boolean;
 }
 
 export interface NotificationEvent {
@@ -26,7 +28,7 @@ export interface NotificationEvent {
   author: string;
   url: string;
   timestamp: Date;
-  metadata: Record<string, any>;
+  metadata: MetadataObject;
 }
 
 export interface NotificationResult {
@@ -34,4 +36,4 @@ export interface NotificationResult {
   messageId?: string;
   error?: string;
   timestamp: Date;
-} 
+}

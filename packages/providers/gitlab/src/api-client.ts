@@ -1,4 +1,13 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { JsonObject } from '@gitlumen/core';
+import { 
+  GitLabApiProject, 
+  GitLabApiIssue, 
+  GitLabApiMergeRequest, 
+  GitLabApiPipeline,
+  GitLabApiHook,
+  GitLabUser 
+} from './types';
 
 export class GitLabApiClient {
   private client: AxiosInstance;
@@ -36,17 +45,17 @@ export class GitLabApiClient {
     );
   }
 
-  async getCurrentUser(): Promise<any> {
+  async getCurrentUser(): Promise<GitLabUser> {
     const response = await this.client.get('/user');
     return response.data;
   }
 
-  async getProject(projectId: string): Promise<any> {
+  async getProject(projectId: string): Promise<GitLabApiProject> {
     const response = await this.client.get(`/projects/${encodeURIComponent(projectId)}`);
     return response.data;
   }
 
-  async listProjects(): Promise<any[]> {
+  async listProjects(): Promise<GitLabApiProject[]> {
     const response = await this.client.get('/projects', {
       params: {
         membership: true,
@@ -58,15 +67,15 @@ export class GitLabApiClient {
     return response.data;
   }
 
-  async getMergeRequest(projectId: string, mergeRequestId: string): Promise<any> {
+  async getMergeRequest(projectId: string, mergeRequestId: string): Promise<GitLabApiMergeRequest> {
     const response = await this.client.get(
       `/projects/${encodeURIComponent(projectId)}/merge_requests/${mergeRequestId}`
     );
     return response.data;
   }
 
-  async listMergeRequests(projectId: string, state?: string): Promise<any[]> {
-    const params: any = {
+  async listMergeRequests(projectId: string, state?: string): Promise<GitLabApiMergeRequest[]> {
+    const params: JsonObject = {
       per_page: 100,
       order_by: 'created_at',
       sort: 'desc',
@@ -83,14 +92,14 @@ export class GitLabApiClient {
     return response.data;
   }
 
-  async getPipeline(projectId: string, pipelineId: string): Promise<any> {
+  async getPipeline(projectId: string, pipelineId: string): Promise<GitLabApiPipeline> {
     const response = await this.client.get(
       `/projects/${encodeURIComponent(projectId)}/pipelines/${pipelineId}`
     );
     return response.data;
   }
 
-  async listPipelines(projectId: string): Promise<any[]> {
+  async listPipelines(projectId: string): Promise<GitLabApiPipeline[]> {
     const response = await this.client.get(
       `/projects/${encodeURIComponent(projectId)}/pipelines`,
       {
@@ -104,15 +113,15 @@ export class GitLabApiClient {
     return response.data;
   }
 
-  async getIssue(projectId: string, issueId: string): Promise<any> {
+  async getIssue(projectId: string, issueId: string): Promise<GitLabApiIssue> {
     const response = await this.client.get(
       `/projects/${encodeURIComponent(projectId)}/issues/${issueId}`
     );
     return response.data;
   }
 
-  async listIssues(projectId: string, state?: string): Promise<any[]> {
-    const params: any = {
+  async listIssues(projectId: string, state?: string): Promise<GitLabApiIssue[]> {
+    const params: JsonObject = {
       per_page: 100,
       order_by: 'created_at',
       sort: 'desc',
@@ -129,14 +138,14 @@ export class GitLabApiClient {
     return response.data;
   }
 
-  async getProjectHooks(projectId: string): Promise<any[]> {
+  async getProjectHooks(projectId: string): Promise<GitLabApiHook[]> {
     const response = await this.client.get(
       `/projects/${encodeURIComponent(projectId)}/hooks`
     );
     return response.data;
   }
 
-  async createProjectHook(projectId: string, hookData: any): Promise<any> {
+  async createProjectHook(projectId: string, hookData: JsonObject): Promise<GitLabApiHook> {
     const response = await this.client.post(
       `/projects/${encodeURIComponent(projectId)}/hooks`,
       hookData
@@ -144,7 +153,7 @@ export class GitLabApiClient {
     return response.data;
   }
 
-  async updateProjectHook(projectId: string, hookId: string, hookData: any): Promise<any> {
+  async updateProjectHook(projectId: string, hookId: string, hookData: JsonObject): Promise<GitLabApiHook> {
     const response = await this.client.put(
       `/projects/${encodeURIComponent(projectId)}/hooks/${hookId}`,
       hookData

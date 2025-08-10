@@ -1,3 +1,5 @@
+import { CreateProjectDto, ProjectQueryDto, ProjectResponseDto, PaginatedResponse, TestConnectionResponseDto } from '@gitlumen/core';
+
 /**
  * Projects Service Port
  *
@@ -16,8 +18,8 @@
  * - Test provider connections
  */
 export abstract class ProjectsServicePort {
-  abstract create(dto: any): Promise<any>;
-  abstract findAll(query: any): Promise<{ items: any[]; total: number }>;
-  abstract testConnection(id: string): Promise<{ id: string; ok: boolean }>;
+  abstract create(dto: CreateProjectDto): Promise<ProjectResponseDto>;
+  abstract findAll(query: ProjectQueryDto): Promise<PaginatedResponse<ProjectResponseDto>>;
+  abstract testConnection(id: string): Promise<TestConnectionResponseDto>;
 }
 

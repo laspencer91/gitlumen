@@ -1,3 +1,5 @@
+import { JsonObject } from '@gitlumen/core';
+
 export class Validators {
   static isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,13 +17,13 @@ export class Validators {
 
   static isValidGitLabUrl(url: string): boolean {
     if (!this.isValidUrl(url)) return false;
-    
+
     const gitlabDomains = [
       'gitlab.com',
       'gitlab.org',
       'gitlab.io',
     ];
-    
+
     const urlObj = new URL(url);
     return gitlabDomains.some(domain => urlObj.hostname.includes(domain));
   }
@@ -44,7 +46,7 @@ export class Validators {
 
   static isValidBranchName(branch: string): boolean {
     // Branch name should not contain special characters that could cause issues
-    const branchRegex = /^[a-zA-Z0-9\/\-_\.]+$/;
+    const branchRegex = /^[-a-zA-Z0-9/_.]+$/;
     return branchRegex.test(branch) && branch.length <= 255;
   }
 
@@ -56,15 +58,15 @@ export class Validators {
       .substring(0, 1000); // Limit length
   }
 
-  static validateObject(obj: any, requiredFields: string[]): { isValid: boolean; errors: string[] } {
+  static validateObject(obj: JsonObject, requiredFields: string[]): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
-    
+
     for (const field of requiredFields) {
       if (obj[field] === undefined || obj[field] === null || obj[field] === '') {
         errors.push(`Missing required field: ${field}`);
       }
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
@@ -73,18 +75,18 @@ export class Validators {
 
   static validatePaginationParams(page: number, limit: number): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
-    
+
     if (page < 1) {
       errors.push('Page must be greater than 0');
     }
-    
+
     if (limit < 1 || limit > 100) {
       errors.push('Limit must be between 1 and 100');
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
     };
   }
-} 
+}

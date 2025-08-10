@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nes
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { OrganizationsServicePort } from './organizations.service.port';
 import { ApiKeyGuard } from '../auth/guards/api-key.guard';
+import { CreateOrganizationDto, UpdateOrganizationDto } from '@gitlumen/core';
 
 @ApiTags('organizations')
 @Controller('organizations')
@@ -11,7 +12,7 @@ export class OrganizationsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new organization' })
-  async create(@Body() dto: any) {
+  async create(@Body() dto: CreateOrganizationDto) {
     // TODO: Implement organization creation
     return this.organizationsService.create(dto);
   }
@@ -24,7 +25,7 @@ export class OrganizationsController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update organization' })
-  async update(@Param('id') id: string, @Body() dto: any) {
+  async update(@Param('id') id: string, @Body() dto: UpdateOrganizationDto) {
     return this.organizationsService.update(id, dto);
   }
 

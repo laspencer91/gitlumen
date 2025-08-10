@@ -1,3 +1,5 @@
+import { EventDto } from '@gitlumen/core';
+
 /**
  * Events Service Port
  *
@@ -15,6 +17,6 @@
  * - Power event-driven workflows
  */
 export abstract class EventsServicePort {
-  abstract emitMergeRequestEvent(event: any): Promise<void>;
+  abstract emitMergeRequestEvent(event: EventDto): Promise<void>;
 }
 

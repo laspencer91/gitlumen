@@ -1,5 +1,5 @@
 import { NotificationEvent } from '@gitlumen/core';
-import { TeamsMessage, TeamsSection, TeamsFact, TeamsAction } from './teams-client';
+import { TeamsMessage, TeamsFact, TeamsAction } from './teams-client';
 
 export interface TeamsPluginConfig {
   webhookUrl: string;
@@ -86,7 +86,7 @@ export class MessageFormatter {
 
     text += `**Project:** ${event.projectName}\n`;
     text += `**Author:** ${event.author}\n`;
-    
+
     if (event.description) {
       text += `**Description:** ${event.description}\n`;
     }
@@ -189,18 +189,18 @@ export class MessageFormatter {
   formatMergeRequestMessage(event: NotificationEvent): TeamsMessage {
     const color = this.getEventColor('merge_request');
     const title = `🔀 ${event.title}`;
-    
+
     const facts: TeamsFact[] = [
       { name: 'Project', value: event.projectName },
       { name: 'Author', value: event.author },
-      { name: 'Source Branch', value: event.metadata?.sourceBranch || 'N/A' },
-      { name: 'Target Branch', value: event.metadata?.targetBranch || 'N/A' },
-      { name: 'State', value: event.metadata?.state || 'N/A' },
-      { name: 'Merge Status', value: event.metadata?.mergeStatus || 'N/A' },
+      { name: 'Source Branch', value: (event.metadata?.sourceBranch as string) || 'N/A' },
+      { name: 'Target Branch', value: (event.metadata?.targetBranch as string) || 'N/A' },
+      { name: 'State', value: (event.metadata?.state as string) || 'N/A' },
+      { name: 'Merge Status', value: (event.metadata?.mergeStatus as string) || 'N/A' },
     ];
 
-    if (event.metadata?.labels?.length) {
-      facts.push({ name: 'Labels', value: event.metadata.labels.join(', ') });
+    if (Array.isArray(event.metadata?.labels) && event.metadata.labels.length > 0) {
+      facts.push({ name: 'Labels', value: (event.metadata.labels as string[]).join(', ') });
     }
 
     return {
@@ -222,22 +222,22 @@ export class MessageFormatter {
   formatPipelineMessage(event: NotificationEvent): TeamsMessage {
     const color = this.getEventColor('pipeline');
     const title = `⚡ ${event.title}`;
-    
+
     const facts: TeamsFact[] = [
       { name: 'Project', value: event.projectName },
       { name: 'Author', value: event.author },
-      { name: 'Branch', value: event.metadata?.ref || 'N/A' },
-      { name: 'Status', value: event.metadata?.status || 'N/A' },
-      { name: 'Commit SHA', value: event.metadata?.sha?.substring(0, 8) || 'N/A' },
+      { name: 'Branch', value: (event.metadata?.ref as string) || 'N/A' },
+      { name: 'Status', value: (event.metadata?.status as string) || 'N/A' },
+      { name: 'Commit SHA', value: (event.metadata?.sha as string)?.substring(0, 8) || 'N/A' },
     ];
 
-    if (event.metadata?.duration) {
+    if (typeof event.metadata?.duration === 'number') {
       facts.push({ name: 'Duration', value: `${event.metadata.duration}s` });
     }
 
-    if (event.metadata?.stages?.length) {
-      const stageInfo = event.metadata.stages
-        .map((stage: any) => `${stage.name}: ${stage.status}`)
+    if (Array.isArray(event.metadata?.stages) && event.metadata.stages.length > 0) {
+      const stageInfo = (event.metadata.stages as Array<{ name: string; status: string }>)
+        .map((stage: { name: string; status: string }) => `${stage.name}: ${stage.status}`)
         .join(', ');
       facts.push({ name: 'Stages', value: stageInfo });
     }
@@ -257,4 +257,4 @@ export class MessageFormatter {
       potentialAction: this.formatActions(event),
     };
   }
-} 
+}

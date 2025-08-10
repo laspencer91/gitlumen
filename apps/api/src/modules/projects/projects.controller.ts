@@ -1,8 +1,9 @@
-import { Controller, Post, Get, Put, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProjectsServicePort } from './projects.service.port';
 import { ProvidersService } from '../providers/providers.service';
 import { ApiKeyGuard } from '../auth/guards/api-key.guard';
+import { CreateProjectDto, ProjectQueryDto } from '@gitlumen/core';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -15,13 +16,13 @@ export class ProjectsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new project' })
-  async create(@Body() dto: any) {
+  async create(@Body() dto: CreateProjectDto) {
     return this.projectsService.create(dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'List projects' })
-  async findAll(@Query() query: any) {
+  async findAll(@Query() query: ProjectQueryDto) {
     return this.projectsService.findAll(query);
   }
 

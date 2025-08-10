@@ -1,9 +1,18 @@
-import { ProviderEvent } from '@gitlumen/core';
+import { JsonObject, ProviderEvent } from '@gitlumen/core';
+import {
+  GitLabWebhookPayload,
+  GitLabMergeRequestPayload,
+  GitLabPipelinePayload,
+  GitLabIssuePayload,
+  GitLabPushPayload,
+  GitLabTagPushPayload,
+  GitLabNotePayload,
+} from './types';
 
 export class GitLabEventParser {
-  parse(payload: any): ProviderEvent {
+  parse(payload: GitLabWebhookPayload): ProviderEvent {
     const objectKind = payload.object_kind;
-    
+
     switch (objectKind) {
       case 'merge_request':
         return this.parseMergeRequestEvent(payload);
@@ -22,19 +31,20 @@ export class GitLabEventParser {
     }
   }
 
-  private parseMergeRequestEvent(payload: any): ProviderEvent {
+  private parseMergeRequestEvent(payload: GitLabMergeRequestPayload): ProviderEvent {
     const mr = payload.object_attributes;
     const project = payload.project;
-    
+    const user = payload.user;
+
     return {
       id: `${payload.object_kind}_${mr.id}`,
       type: 'merge_request',
       projectId: project.id.toString(),
       projectName: project.name,
       branch: mr.source_branch,
-      author: payload.user?.name || payload.user?.username || 'Unknown',
+      author: user.name || user.username || 'Unknown',
       title: mr.title,
-      description: mr.description,
+      description: mr.description || '',
       url: mr.url,
       timestamp: new Date(mr.updated_at || mr.created_at),
       metadata: {
@@ -42,91 +52,95 @@ export class GitLabEventParser {
         targetBranch: mr.target_branch,
         state: mr.state,
         mergeStatus: mr.merge_status,
-        action: payload.object_attributes?.action || 'update',
-        labels: payload.labels?.map((l: any) => l.name) || [],
-        assignees: payload.assignees?.map((a: any) => a.name) || [],
+        action: mr.action || 'update',
+        labels: payload.labels?.map(l => l.name) || [],
+        assignees: payload.assignees?.map(a => a.name) || [],
       },
     };
   }
 
-  private parsePipelineEvent(payload: any): ProviderEvent {
+  private parsePipelineEvent(payload: GitLabPipelinePayload): ProviderEvent {
     const pipeline = payload.object_attributes;
     const project = payload.project;
-    
+    const user = payload.user;
+
     return {
       id: `${payload.object_kind}_${pipeline.id}`,
       type: 'pipeline',
       projectId: project.id.toString(),
       projectName: project.name,
       branch: pipeline.ref,
-      author: payload.user?.name || payload.user?.username || 'Unknown',
+      author: user.name || user.username || 'Unknown',
       title: `Pipeline ${pipeline.status} for ${pipeline.ref}`,
       description: `Pipeline ${pipeline.id} ${pipeline.status}`,
       url: `${project.web_url}/-/pipelines/${pipeline.id}`,
-      timestamp: new Date(pipeline.updated_at || pipeline.created_at),
+      timestamp: new Date(pipeline.finished_at || pipeline.created_at),
       metadata: {
         pipelineId: pipeline.id,
         status: pipeline.status,
         ref: pipeline.ref,
         sha: pipeline.sha,
-        duration: pipeline.duration,
-        stages: payload.builds?.map((b: any) => ({
+        duration: pipeline.duration || 0,
+        stages: payload.builds?.map(b => ({
           name: b.stage,
           status: b.status,
-          duration: b.duration,
+          duration: b.duration || 0,
         })) || [],
       },
     };
   }
 
-  private parseIssueEvent(payload: any): ProviderEvent {
+  private parseIssueEvent(payload: GitLabIssuePayload): ProviderEvent {
     const issue = payload.object_attributes;
     const project = payload.project;
-    
+    const user = payload.user;
+
     return {
       id: `${payload.object_kind}_${issue.id}`,
       type: 'issue',
       projectId: project.id.toString(),
       projectName: project.name,
       branch: 'N/A',
-      author: payload.user?.name || payload.user?.username || 'Unknown',
+      author: user.name || user.username || 'Unknown',
       title: issue.title,
-      description: issue.description,
+      description: issue.description || '',
       url: issue.url,
       timestamp: new Date(issue.updated_at || issue.created_at),
       metadata: {
         issueId: issue.id,
         state: issue.state,
         action: issue.action || 'update',
-        labels: payload.labels?.map((l: any) => l.name) || [],
-        assignees: payload.assignees?.map((a: any) => a.name) || [],
-        milestone: issue.milestone?.title,
+        labels: payload.labels?.map(l => l.name) || [],
+        assignees: payload.assignees?.map(a => a.name) || [],
+        milestone: payload.milestone?.title || null,
       },
     };
   }
 
-  private parsePushEvent(payload: any): ProviderEvent {
+  private parsePushEvent(payload: GitLabPushPayload): ProviderEvent {
     const project = payload.project;
-    const commits = payload.commits || [];
-    const lastCommit = commits[commits.length - 1];
-    
+    const commits = payload.commits;
+    const branch = payload.ref.replace('refs/heads/', '');
+    const commitCount = commits.length;
+    const firstCommit = commits[0];
+
     return {
-      id: `${payload.object_kind}_${project.id}_${Date.now()}`,
+      id: `${payload.object_kind}_${project.id}`,
       type: 'push',
       projectId: project.id.toString(),
       projectName: project.name,
-      branch: payload.ref.replace('refs/heads/', ''),
-      author: lastCommit?.author?.name || 'Unknown',
-      title: `Push to ${payload.ref.replace('refs/heads/', '')}`,
-      description: `${commits.length} commit(s) pushed`,
-      url: `${project.web_url}/-/commits/${payload.ref.replace('refs/heads/', '')}`,
-      timestamp: new Date(payload.commits?.[0]?.timestamp || Date.now()),
+      branch: branch,
+      author: payload.user_name,
+      title: `${commitCount} commit${commitCount !== 1 ? 's' : ''} to ${branch}`,
+      description: firstCommit?.message || '',
+      url: `${project.web_url}/-/tree/${branch}`,
+      timestamp: new Date(firstCommit?.timestamp || Date.now()),
       metadata: {
         ref: payload.ref,
         before: payload.before,
         after: payload.after,
-        commitCount: commits.length,
-        commits: commits.map((c: any) => ({
+        commitCount: commitCount,
+        commits: commits.map(c => ({
           id: c.id,
           message: c.message,
           author: c.author.name,
@@ -136,41 +150,42 @@ export class GitLabEventParser {
     };
   }
 
-  private parseTagPushEvent(payload: any): ProviderEvent {
+  private parseTagPushEvent(payload: GitLabTagPushPayload): ProviderEvent {
     const project = payload.project;
-    
+    const tag = payload.ref.replace('refs/tags/', '');
+
     return {
-      id: `${payload.object_kind}_${project.id}_${Date.now()}`,
+      id: `${payload.object_kind}_${project.id}`,
       type: 'tag_push',
       projectId: project.id.toString(),
       projectName: project.name,
-      branch: 'N/A',
-      author: payload.user?.name || payload.user?.username || 'Unknown',
-      title: `Tag ${payload.ref.replace('refs/tags/', '')} ${payload.before === '0000000000000000000000000000000000000000' ? 'created' : 'deleted'}`,
-      description: `Tag ${payload.ref.replace('refs/tags/', '')} was ${payload.before === '0000000000000000000000000000000000000000' ? 'created' : 'deleted'}`,
-      url: `${project.web_url}/-/tags/${payload.ref.replace('refs/tags/', '')}`,
+      branch: tag,
+      author: payload.user_name,
+      title: `Tag ${tag} created`,
+      description: `New tag ${tag} created`,
+      url: `${project.web_url}/-/tags/${tag}`,
       timestamp: new Date(),
       metadata: {
+        tag: tag,
         ref: payload.ref,
-        before: payload.before,
         after: payload.after,
-        action: payload.before === '0000000000000000000000000000000000000000' ? 'created' : 'deleted',
       },
     };
   }
 
-  private parseNoteEvent(payload: any): ProviderEvent {
+  private parseNoteEvent(payload: GitLabNotePayload): ProviderEvent {
     const note = payload.object_attributes;
     const project = payload.project;
-    
+    const user = payload.user;
+
     return {
       id: `${payload.object_kind}_${note.id}`,
       type: 'note',
       projectId: project.id.toString(),
       projectName: project.name,
       branch: 'N/A',
-      author: payload.user?.name || payload.user?.username || 'Unknown',
-      title: `Comment on ${payload.noteable_type}`,
+      author: user.name || user.username || 'Unknown',
+      title: `Comment on ${note.noteable_type}`,
       description: note.note,
       url: note.url,
       timestamp: new Date(note.updated_at || note.created_at),
@@ -179,29 +194,27 @@ export class GitLabEventParser {
         noteableType: note.noteable_type,
         noteableId: note.noteable_id,
         note: note.note,
-        action: 'created',
       },
     };
   }
 
-  private parseGenericEvent(payload: any): ProviderEvent {
-    const project = payload.project || {};
-    
+  private parseGenericEvent(payload: GitLabWebhookPayload): ProviderEvent {
+    const eventType = payload.object_kind;
+    const project = 'project' in payload ? payload.project : null;
+    const user = 'user' in payload ? payload.user : null;
+
     return {
-      id: `${payload.object_kind}_${Date.now()}`,
-      type: payload.object_kind,
-      projectId: project.id?.toString() || 'unknown',
-      projectName: project.name || 'Unknown Project',
+      id: `${eventType}_${project?.id || 'unknown'}_${Date.now()}`,
+      type: eventType,
+      projectId: project?.id.toString() || 'unknown',
+      projectName: project?.name || 'Unknown Project',
       branch: 'N/A',
-      author: payload.user?.name || payload.user?.username || 'Unknown',
-      title: `${payload.object_kind} event`,
-      description: `Generic ${payload.object_kind} event`,
-      url: project.web_url || '#',
+      author: user?.name || user?.username || 'Unknown',
+      title: `${eventType} event`,
+      description: `Generic ${eventType} event`,
+      url: project?.web_url || '#',
       timestamp: new Date(),
-      metadata: {
-        objectKind: payload.object_kind,
-        rawPayload: payload,
-      },
+      metadata: payload as unknown as JsonObject, // Generic fallback
     };
   }
-} 
+}

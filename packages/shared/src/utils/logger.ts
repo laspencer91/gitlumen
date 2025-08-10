@@ -1,3 +1,5 @@
+import { JsonValue } from '@gitlumen/core';
+
 export enum LogLevel {
   ERROR = 0,
   WARN = 1,
@@ -6,7 +8,7 @@ export enum LogLevel {
 }
 
 export interface LogContext {
-  [key: string]: any;
+  [key: string]: JsonValue;
 }
 
 export class Logger {

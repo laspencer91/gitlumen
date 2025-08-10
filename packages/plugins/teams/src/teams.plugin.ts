@@ -1,4 +1,4 @@
-import { Plugin, PluginRuntimeConfig, NotificationEvent, NotificationResult } from '@gitlumen/core';
+import { Plugin, PluginRuntimeConfig, NotificationEvent, NotificationResult, JsonObject } from '@gitlumen/core';
 import { TeamsClient } from './teams-client';
 import { MessageFormatter } from './message-formatter';
 
@@ -30,7 +30,7 @@ export class TeamsPlugin implements Plugin {
     this.id = config.id;
     this.name = config.name;
     this.type = config.type;
-    this.config = config.config as TeamsPluginConfig;
+    this.config = config.config as unknown as TeamsPluginConfig;
 
     this.client = new TeamsClient(this.config.webhookUrl);
     this.formatter = new MessageFormatter(this.config);
@@ -55,7 +55,7 @@ export class TeamsPlugin implements Plugin {
     }
   }
 
-  validateConfig(config: any): boolean {
+  validateConfig(config: JsonObject): boolean {
     if (!config.webhookUrl || !config.botName) {
       return false;
     }

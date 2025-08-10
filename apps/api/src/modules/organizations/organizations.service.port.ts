@@ -1,3 +1,5 @@
+import { CreateOrganizationDto, UpdateOrganizationDto, OrganizationResponseDto, GenericResponseDto } from '@gitlumen/core';
+
 /**
  * Organizations Service Port
  *
@@ -15,9 +17,9 @@
  * - Handle billing/subscription management (future)
  */
 export abstract class OrganizationsServicePort {
-  abstract create(dto: any): Promise<any>;
-  abstract findOne(id: string): Promise<any>;
-  abstract update(id: string, dto: any): Promise<any>;
-  abstract remove(id: string): Promise<any>;
+  abstract create(dto: CreateOrganizationDto): Promise<OrganizationResponseDto>;
+  abstract findOne(id: string): Promise<OrganizationResponseDto>;
+  abstract update(id: string, dto: UpdateOrganizationDto): Promise<OrganizationResponseDto>;
+  abstract remove(id: string): Promise<GenericResponseDto>;
 }
 

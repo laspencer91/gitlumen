@@ -1,3 +1,5 @@
+import { NotificationEventDto } from '@gitlumen/core';
+
 /**
  * Notifications Service Port
  *
@@ -16,6 +18,6 @@
  * - Manage templates
  */
 export abstract class NotificationsServicePort {
-  abstract sendNotification(projectId: string, event: any): Promise<void>;
+  abstract sendNotification(projectId: string, event: NotificationEventDto): Promise<void>;
 }
 

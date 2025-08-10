@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import { JsonObject } from '@gitlumen/core';
 
 export class GitLabWebhookValidator {
   private webhookSecret: string;
@@ -7,7 +8,7 @@ export class GitLabWebhookValidator {
     this.webhookSecret = webhookSecret;
   }
 
-  validate(payload: any, signature: string): boolean {
+  validate(payload: JsonObject, signature: string): boolean {
     if (!this.webhookSecret || !signature) {
       return false;
     }
@@ -30,8 +31,8 @@ export class GitLabWebhookValidator {
     }
   }
 
-  private generateHmacSignature(payload: any): string {
-    const data = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  private generateHmacSignature(payload: JsonObject): string {
+    const data = JSON.stringify(payload);
     return crypto
       .createHmac('sha256', this.webhookSecret)
       .update(data, 'utf8')
@@ -44,7 +45,10 @@ export class GitLabWebhookValidator {
 
   validateSignature(payload: string, signature: string): boolean {
     try {
-      const expectedSignature = this.generateHmacSignature(payload);
+      const expectedSignature = crypto
+        .createHmac('sha256', this.webhookSecret)
+        .update(payload, 'utf8')
+        .digest('hex');
       return crypto.timingSafeEqual(
         Buffer.from(signature, 'hex'),
         Buffer.from(expectedSignature, 'hex')
@@ -53,4 +57,4 @@ export class GitLabWebhookValidator {
       return false;
     }
   }
-} 
+}

@@ -1,3 +1,5 @@
+import { MetadataObject } from './common.types';
+
 export enum EventType {
   MERGE_REQUEST_OPENED = 'merge_request_opened',
   MERGE_REQUEST_MERGED = 'merge_request_merged',
@@ -15,7 +17,7 @@ export interface BaseEvent {
   type: EventType;
   projectId: string;
   timestamp: Date;
-  metadata: Record<string, any>;
+  metadata: MetadataObject;
 }
 
 export interface MergeRequestEvent extends BaseEvent {

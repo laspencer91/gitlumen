@@ -1,7 +1,8 @@
-import { Provider, ProviderRuntimeConfig, ProviderEvent, ProjectInfo } from '@gitlumen/core';
+import { Provider, ProviderRuntimeConfig, ProviderEvent, ProjectInfo, JsonObject } from '@gitlumen/core';
 import { GitLabApiClient } from './api-client';
 import { GitLabWebhookValidator } from './webhook-validator';
 import { GitLabEventParser } from './event-parser';
+import { GitLabWebhookPayload } from './types';
 
 export class GitLabProvider implements Provider {
   public readonly id: string;
@@ -24,22 +25,22 @@ export class GitLabProvider implements Provider {
     this.eventParser = new GitLabEventParser();
   }
 
-  validateWebhook(payload: any, signature: string): boolean {
+  validateWebhook(payload: JsonObject, signature: string): boolean {
     return this.webhookValidator.validate(payload, signature);
   }
 
-  parseEvent(payload: any): ProviderEvent {
-    return this.eventParser.parse(payload);
+  parseEvent(payload: JsonObject): ProviderEvent {
+    return this.eventParser.parse(payload as unknown as GitLabWebhookPayload); // TODO: Validate payload structure
   }
 
   async getProjectInfo(projectId: string): Promise<ProjectInfo> {
     try {
       const project = await this.apiClient.getProject(projectId);
-      
+
       return {
         id: project.id.toString(),
         name: project.name,
-        description: project.description,
+        description: project.description || undefined,
         webUrl: project.web_url,
         defaultBranch: project.default_branch,
         visibility: project.visibility as 'public' | 'private' | 'internal',
@@ -86,4 +87,4 @@ export class GitLabProvider implements Provider {
       return false;
     }
   }
-} 
+}
