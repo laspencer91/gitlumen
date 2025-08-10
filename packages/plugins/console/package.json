@@ -1,0 +1,19 @@
+{
+  "name": "@gitlumen/plugin-console",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Console logging plugin for GitLumen debugging",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@gitlumen/core": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

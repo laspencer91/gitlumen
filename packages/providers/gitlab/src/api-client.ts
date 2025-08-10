@@ -1,13 +1,13 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { JsonObject } from '@gitlumen/core';
-import { 
-  GitLabApiProject, 
-  GitLabApiIssue, 
-  GitLabApiMergeRequest, 
+import {
+  GitLabApiProject,
+  GitLabApiIssue,
+  GitLabApiMergeRequest,
   GitLabApiPipeline,
   GitLabApiHook,
-  GitLabUser 
 } from './types';
+import { GitLabUser } from './webhook-types';
 
 export class GitLabApiClient {
   private client: AxiosInstance;
@@ -80,7 +80,7 @@ export class GitLabApiClient {
       order_by: 'created_at',
       sort: 'desc',
     };
-    
+
     if (state) {
       params.state = state;
     }
@@ -126,7 +126,7 @@ export class GitLabApiClient {
       order_by: 'created_at',
       sort: 'desc',
     };
-    
+
     if (state) {
       params.state = state;
     }
@@ -166,4 +166,4 @@ export class GitLabApiClient {
       `/projects/${encodeURIComponent(projectId)}/hooks/${hookId}`
     );
   }
-} 
+}

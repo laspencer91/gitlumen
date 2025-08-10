@@ -1,257 +1,56 @@
 /**
  * GitLab webhook payload types
  * These interfaces define the expected structure of GitLab webhook payloads
+ *
+ * Note: The comprehensive webhook event types are now in webhook-types.ts
+ * This file maintains the header types and legacy compatibility
  */
 
-export interface GitLabUser {
-  id: number;
-  name: string;
-  username: string;
-  email?: string;
-  avatar_url?: string;
+import { GitLabMilestone, GitLabUser } from './webhook-types';
+
+/**
+ * GitLab webhook event types as sent in X-Gitlab-Event header
+ * Based on: https://docs.gitlab.com/user/project/integrations/webhook_events/
+ */
+export type GitLabEventType =
+  | 'Push Hook'
+  | 'Tag Push Hook'
+  | 'Issue Hook'
+  | 'Confidential Issue Hook'
+  | 'Note Hook'
+  | 'Confidential Note Hook'
+  | 'Merge Request Hook'
+  | 'Wiki Page Hook'
+  | 'Pipeline Hook'
+  | 'Job Hook'
+  | 'Deployment Hook'
+  | 'Feature Flag Hook'
+  | 'Release Hook'
+  | 'Milestone Hook'
+  | 'Emoji Hook'
+  | 'Resource Access Token Hook'
+  | 'Vulnerability Hook'
+  | 'Group Member Hook'
+  | 'Project Hook'
+  | 'Subgroup Hook'
+  | 'Work Item Hook';
+
+/**
+ * GitLab webhook headers interface
+ */
+export interface GitLabWebhookHeaders {
+  'x-gitlab-event': GitLabEventType;
+  'x-gitlab-token'?: string;
+  'x-request-id'?: string;
+  'x-gitlab-instance'?: string;
+  'user-agent'?: string;
+  'content-type'?: string;
 }
 
-export interface GitLabProject {
-  id: number;
-  name: string;
-  description?: string;
-  web_url: string;
-  namespace?: {
-    name: string;
-    path: string;
-  };
-}
-
-export interface GitLabCommit {
-  id: string;
-  message: string;
-  timestamp: string;
-  url: string;
-  author: {
-    name: string;
-    email: string;
-  };
-  added: string[];
-  modified: string[];
-  removed: string[];
-}
-
-export interface GitLabLabel {
-  id: number;
-  title: string;
-  name: string;
-  color: string;
-  description?: string;
-}
-
-export interface GitLabMilestone {
-  id: number;
-  title: string;
-  description?: string;
-  state: 'active' | 'closed';
-  created_at: string;
-  updated_at: string;
-  due_date?: string;
-}
-
-// Merge Request specific types
-export interface GitLabMergeRequestAttributes {
-  id: number;
-  iid: number;
-  title: string;
-  description?: string;
-  state: 'opened' | 'closed' | 'merged';
-  created_at: string;
-  updated_at: string;
-  target_branch: string;
-  source_branch: string;
-  source_project_id: number;
-  target_project_id: number;
-  url: string;
-  merge_status: 'can_be_merged' | 'cannot_be_merged' | 'unchecked';
-  action?: 'open' | 'close' | 'reopen' | 'update' | 'approved' | 'unapproved' | 'approval' | 'unapproval' | 'merge';
-}
-
-export interface GitLabMergeRequestPayload {
-  object_kind: 'merge_request';
-  event_type: 'merge_request';
-  user: GitLabUser;
-  project: GitLabProject;
-  object_attributes: GitLabMergeRequestAttributes;
-  labels?: GitLabLabel[];
-  assignees?: GitLabUser[];
-  reviewers?: GitLabUser[];
-  milestone?: GitLabMilestone;
-}
-
-// Pipeline specific types
-export interface GitLabPipelineAttributes {
-  id: number;
-  ref: string;
-  tag: boolean;
-  sha: string;
-  before_sha: string;
-  source: string;
-  status: 'pending' | 'running' | 'success' | 'failed' | 'canceled' | 'skipped';
-  stages: string[];
-  created_at: string;
-  finished_at?: string;
-  duration?: number;
-  variables?: Array<{
-    key: string;
-    value: string;
-  }>;
-}
-
-export interface GitLabBuild {
-  id: number;
-  stage: string;
-  name: string;
-  status: 'pending' | 'running' | 'success' | 'failed' | 'canceled' | 'skipped';
-  created_at: string;
-  started_at?: string;
-  finished_at?: string;
-  duration?: number;
-  allow_failure: boolean;
-}
-
-export interface GitLabPipelinePayload {
-  object_kind: 'pipeline';
-  object_attributes: GitLabPipelineAttributes;
-  merge_request?: {
-    id: number;
-    iid: number;
-    title: string;
-    source_branch: string;
-    target_branch: string;
-    state: string;
-    url: string;
-  };
-  user: GitLabUser;
-  project: GitLabProject;
-  commit: {
-    id: string;
-    message: string;
-    timestamp: string;
-    url: string;
-    author: {
-      name: string;
-      email: string;
-    };
-  };
-  builds?: GitLabBuild[];
-}
-
-// Issue specific types
-export interface GitLabIssueAttributes {
-  id: number;
-  iid: number;
-  title: string;
-  description?: string;
-  state: 'opened' | 'closed';
-  created_at: string;
-  updated_at: string;
-  closed_at?: string;
-  url: string;
-  action?: 'open' | 'close' | 'reopen' | 'update';
-}
-
-export interface GitLabIssuePayload {
-  object_kind: 'issue';
-  event_type: 'issue';
-  user: GitLabUser;
-  project: GitLabProject;
-  object_attributes: GitLabIssueAttributes;
-  labels?: GitLabLabel[];
-  assignees?: GitLabUser[];
-  milestone?: GitLabMilestone;
-}
-
-// Push specific types
-export interface GitLabPushPayload {
-  object_kind: 'push';
-  event_name: 'push';
-  before: string;
-  after: string;
-  ref: string;
-  checkout_sha: string;
-  message?: string;
-  user_id: number;
-  user_name: string;
-  user_username: string;
-  user_email: string;
-  user_avatar?: string;
-  project_id: number;
-  project: GitLabProject;
-  commits: GitLabCommit[];
-  total_commits_count: number;
-}
-
-// Tag push specific types
-export interface GitLabTagPushPayload {
-  object_kind: 'tag_push';
-  event_name: 'tag_push';
-  before: string;
-  after: string;
-  ref: string;
-  checkout_sha: string;
-  message?: string;
-  user_id: number;
-  user_name: string;
-  user_username: string;
-  user_email: string;
-  user_avatar?: string;
-  project_id: number;
-  project: GitLabProject;
-  commits: GitLabCommit[];
-  total_commits_count: number;
-}
-
-// Note (comment) specific types
-export interface GitLabNoteAttributes {
-  id: number;
-  note: string;
-  noteable_type: 'Issue' | 'MergeRequest' | 'Commit' | 'Snippet';
-  noteable_id: number;
-  author_id: number;
-  created_at: string;
-  updated_at: string;
-  project_id: number;
-  attachment?: string;
-  line_code?: string;
-  commit_id?: string;
-  system: boolean;
-  url: string;
-}
-
-export interface GitLabNotePayload {
-  object_kind: 'note';
-  event_type: 'note';
-  user: GitLabUser;
-  project: GitLabProject;
-  object_attributes: GitLabNoteAttributes;
-  merge_request?: GitLabMergeRequestAttributes;
-  issue?: GitLabIssueAttributes;
-  commit?: {
-    id: string;
-    message: string;
-    timestamp: string;
-    url: string;
-    author: {
-      name: string;
-      email: string;
-    };
-  };
-}
-
-// Union type for all possible GitLab webhook payloads
-export type GitLabWebhookPayload = 
-  | GitLabMergeRequestPayload
-  | GitLabPipelinePayload
-  | GitLabIssuePayload
-  | GitLabPushPayload
-  | GitLabTagPushPayload
-  | GitLabNotePayload;
+// ============================================================================
+// NOTE: This file now only contains header types and GitLab API types
+// All comprehensive webhook event types have been moved to webhook-types.ts
+// ============================================================================
 
 // GitLab API Response Types
 // These represent the structure of data returned by GitLab's REST API

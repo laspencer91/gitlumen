@@ -2,7 +2,7 @@ import { Provider, ProviderRuntimeConfig, ProviderEvent, ProjectInfo, JsonObject
 import { GitLabApiClient } from './api-client';
 import { GitLabWebhookValidator } from './webhook-validator';
 import { GitLabEventParser } from './event-parser';
-import { GitLabWebhookPayload } from './types';
+import { GitLabWebhookEvents } from './webhook-types';
 
 export class GitLabProvider implements Provider {
   public readonly id: string;
@@ -30,7 +30,7 @@ export class GitLabProvider implements Provider {
   }
 
   parseEvent(payload: JsonObject): ProviderEvent {
-    return this.eventParser.parse(payload as unknown as GitLabWebhookPayload); // TODO: Validate payload structure
+    return this.eventParser.parse(payload as unknown as GitLabWebhookEvents); // TODO: Validate payload structure
   }
 
   async getProjectInfo(projectId: string): Promise<ProjectInfo> {

@@ -1,16 +1,16 @@
 import { JsonObject, ProviderEvent } from '@gitlumen/core';
 import {
-  GitLabWebhookPayload,
-  GitLabMergeRequestPayload,
-  GitLabPipelinePayload,
-  GitLabIssuePayload,
-  GitLabPushPayload,
-  GitLabTagPushPayload,
-  GitLabNotePayload,
-} from './types';
+  GitLabWebhookEvents,
+  MergeRequestEvent,
+  PipelineEvent,
+  IssueEvent,
+  PushEvent,
+  TagPushEvent,
+  NoteEvent
+} from './webhook-types';
 
 export class GitLabEventParser {
-  parse(payload: GitLabWebhookPayload): ProviderEvent {
+  parse(payload: GitLabWebhookEvents): ProviderEvent {
     const objectKind = payload.object_kind;
 
     switch (objectKind) {
@@ -31,7 +31,7 @@ export class GitLabEventParser {
     }
   }
 
-  private parseMergeRequestEvent(payload: GitLabMergeRequestPayload): ProviderEvent {
+  private parseMergeRequestEvent(payload: MergeRequestEvent): ProviderEvent {
     const mr = payload.object_attributes;
     const project = payload.project;
     const user = payload.user;
@@ -59,7 +59,7 @@ export class GitLabEventParser {
     };
   }
 
-  private parsePipelineEvent(payload: GitLabPipelinePayload): ProviderEvent {
+  private parsePipelineEvent(payload: PipelineEvent): ProviderEvent {
     const pipeline = payload.object_attributes;
     const project = payload.project;
     const user = payload.user;
@@ -84,13 +84,13 @@ export class GitLabEventParser {
         stages: payload.builds?.map(b => ({
           name: b.stage,
           status: b.status,
-          duration: b.duration || 0,
+          allowFailure: b.allow_failure,
         })) || [],
       },
     };
   }
 
-  private parseIssueEvent(payload: GitLabIssuePayload): ProviderEvent {
+  private parseIssueEvent(payload: IssueEvent): ProviderEvent {
     const issue = payload.object_attributes;
     const project = payload.project;
     const user = payload.user;
@@ -112,12 +112,12 @@ export class GitLabEventParser {
         action: issue.action || 'update',
         labels: payload.labels?.map(l => l.name) || [],
         assignees: payload.assignees?.map(a => a.name) || [],
-        milestone: payload.milestone?.title || null,
+        milestoneId: issue.milestone_id || null,
       },
     };
   }
 
-  private parsePushEvent(payload: GitLabPushPayload): ProviderEvent {
+  private parsePushEvent(payload: PushEvent): ProviderEvent {
     const project = payload.project;
     const commits = payload.commits;
     const branch = payload.ref.replace('refs/heads/', '');
@@ -150,7 +150,7 @@ export class GitLabEventParser {
     };
   }
 
-  private parseTagPushEvent(payload: GitLabTagPushPayload): ProviderEvent {
+  private parseTagPushEvent(payload: TagPushEvent): ProviderEvent {
     const project = payload.project;
     const tag = payload.ref.replace('refs/tags/', '');
 
@@ -173,7 +173,7 @@ export class GitLabEventParser {
     };
   }
 
-  private parseNoteEvent(payload: GitLabNotePayload): ProviderEvent {
+  private parseNoteEvent(payload: NoteEvent): ProviderEvent {
     const note = payload.object_attributes;
     const project = payload.project;
     const user = payload.user;
@@ -192,13 +192,13 @@ export class GitLabEventParser {
       metadata: {
         noteId: note.id,
         noteableType: note.noteable_type,
-        noteableId: note.noteable_id,
+        noteableId: note.noteable_id || null,
         note: note.note,
       },
     };
   }
 
-  private parseGenericEvent(payload: GitLabWebhookPayload): ProviderEvent {
+  private parseGenericEvent(payload: GitLabWebhookEvents): ProviderEvent {
     const eventType = payload.object_kind;
     const project = 'project' in payload ? payload.project : null;
     const user = 'user' in payload ? payload.user : null;
