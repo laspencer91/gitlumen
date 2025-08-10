@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
+import { AuthServicePort } from './auth.service.port';
 
 class GenerateApiKeyDto {
   organizationId!: string;
@@ -13,7 +13,7 @@ class ValidateApiKeyDto {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthServicePort) {}
 
   @Post('generate-api-key')
   @ApiOperation({ summary: 'Generate a new API key for an organization' })

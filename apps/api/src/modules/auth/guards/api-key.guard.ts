@@ -1,9 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { AuthService } from '../auth.service';
+import { AuthServicePort } from '../auth.service.port';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthServicePort) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

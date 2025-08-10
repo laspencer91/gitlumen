@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProjectsServicePort } from './projects.service.port';
-import { ProvidersService } from '../providers/providers.service';
+import { ProvidersServicePort } from '../providers/providers.service.port';
 import { ApiKeyGuard } from '../auth/guards/api-key.guard';
 import { CreateProjectDto, ProjectQueryDto } from '@gitlumen/core';
 
@@ -11,7 +11,7 @@ import { CreateProjectDto, ProjectQueryDto } from '@gitlumen/core';
 export class ProjectsController {
   constructor(
     private readonly projectsService: ProjectsServicePort,
-    private readonly providersService: ProvidersService,
+    private readonly providersService: ProvidersServicePort,
   ) {}
 
   @Post()

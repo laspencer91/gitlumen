@@ -12,7 +12,7 @@ import { AuthServicePort } from './auth.service.port';
     ApiKeyGuard,
     ApiKeyStrategy
   ],
-  exports: [AuthService, ApiKeyGuard],
+  exports: [AuthServicePort, ApiKeyGuard],
 })
 export class AuthModule {}
 

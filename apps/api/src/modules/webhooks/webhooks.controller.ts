@@ -1,12 +1,12 @@
 import { Controller, Post, Param, Headers, Body } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { WebhooksService } from './webhooks.service';
+import { WebhooksServicePort } from './webhooks.service.port';
 import { WebhookHeadersDto, WebhookPayloadDto } from '@gitlumen/core';
 
 @ApiTags('webhooks')
 @Controller('webhooks')
 export class WebhooksController {
-  constructor(private readonly webhooksService: WebhooksService) {}
+  constructor(private readonly webhooksService: WebhooksServicePort) {}
 
   @Post('gitlab/:projectId')
   @ApiOperation({ summary: 'Receive GitLab webhook' })

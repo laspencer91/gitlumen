@@ -16,9 +16,16 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "clean": "turbo run clean && rimraf node_modules .turbo",
-    "db:migrate": "yarn workspace api migration:run",
-    "db:generate": "yarn workspace api migration:generate",
-    "db:revert": "yarn workspace api migration:revert"
+    "setup": "node scripts/setup.js",
+    "db:init": "node scripts/init-db.js",
+    "test:system": "node scripts/test-db.js",
+    "db:migrate": "yarn workspace @gitlumen/api migration:run",
+    "db:generate": "yarn workspace @gitlumen/api migration:generate",
+    "db:revert": "yarn workspace @gitlumen/api migration:revert",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f",
+    "docker:postgres": "docker-compose -f docker/docker-compose.yml up -d postgres"
   },
   "devDependencies": {
     "turbo": "latest",
